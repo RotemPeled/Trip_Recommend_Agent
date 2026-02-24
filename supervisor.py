@@ -4,13 +4,18 @@ from logger import log_supervisor, timer
 
 SUPERVISOR_MODEL = "llama-3.1-8b-instant"
 
-SUPERVISOR_PROMPT = """You check if an assistant made up fake data.
+SUPERVISOR_PROMPT = """You check if an assistant fabricated specific data that should have come from tools.
 
-Rules:
-- ONLY fail if the assistant invented specific numbers (temperatures, distances) or place names that are NOT in the tool outputs.
-- If place names in the response appear anywhere in the tool outputs (even in addresses), that is FINE — PASS.
-- The user's home location and general travel advice are always FINE — PASS.
-- When in doubt, PASS.
+ONLY FAIL if the assistant invented specific numbers (temperatures, precipitation, snowfall) 
+that contradict or don't appear in the tool outputs.
+
+PASS for everything else, including:
+- General travel advice and knowledge
+- Place names from tool outputs (even from addresses)
+- The user's home location
+- High-level destination suggestions
+
+When in doubt, PASS.
 
 Respond EXACTLY:
 VERDICT: PASS or FAIL
