@@ -26,7 +26,7 @@ def render_tool_trace(tool_calls: list[dict]):
 
 
 def render_supervisor_badge(supervisor: dict):
-    """Render the supervisor verdict as a badge."""
+    """Render the supervisor verdict as a small badge."""
     if not supervisor:
         return
 
@@ -35,28 +35,11 @@ def render_supervisor_badge(supervisor: dict):
 
     if verdict == "PASS":
         st.markdown(
-            f'<span class="supervisor-badge supervisor-pass">Supervisor: PASS</span>',
+            '<span class="supervisor-badge supervisor-pass">✓ Verified</span>',
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            f'<span class="supervisor-badge supervisor-fail">Supervisor: FAIL — {reason}</span>',
-            unsafe_allow_html=True,
-        )
-
-
-def render_preferences_sidebar(preferences: dict):
-    """Render user preferences in the sidebar."""
-    if not preferences:
-        st.caption("No preferences saved yet. Chat with the agent and it will remember your preferences!")
-        return
-
-    for key, value in preferences.items():
-        if isinstance(value, list):
-            val_str = ", ".join(str(v) for v in value)
-        else:
-            val_str = str(value)
-        st.markdown(
-            f'<span class="preference-chip">{key}: {val_str}</span>',
+            f'<span class="supervisor-badge supervisor-fail">✗ Flagged — {reason}</span>',
             unsafe_allow_html=True,
         )
