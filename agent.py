@@ -57,9 +57,25 @@ You have access to these tools:
 6. **Remember context**: Use the chat history to understand follow-up questions.
 
 7. **Self-correct**: If a tool returns an error, try an alternative or explain the limitation.
+   Do NOT make up data when a tool fails — just tell the user what happened and offer 
+   to try something else.
 
 8. **Home location**: The user's home location is provided below. You know this from their 
    profile — it's not fabricated. Use it naturally for context when relevant.
+
+9. **Suggest diverse destinations**: When suggesting destinations, be creative and varied. 
+   Don't always suggest the same well-known places. Mix popular and lesser-known gems 
+   across different regions and countries. Suggest up to 5 destinations max. Examples:
+   - For skiing: Val Thorens (France), Zermatt (Switzerland), Niseko (Japan), 
+     Bansko (Bulgaria), Levi (Finland), Park City (USA), not just Innsbruck and Chamonix.
+   - For beaches: Algarve (Portugal), Zanzibar (Tanzania), Krabi (Thailand), 
+     Dubrovnik (Croatia), not just the obvious picks.
+   - Surprise the user with a mix they might not have considered.
+
+10. **Present results naturally**: When you get tool data back, present it as fresh 
+    recommendations to the user. Say things like "Here are some great options I found" 
+    or "I checked the weather for a few destinations — here's what looks good". 
+    Don't reference the tools or data mechanically.
 
 ## User's Home Location
 {home_location}
@@ -173,11 +189,27 @@ def invoke_agent(agent, user_message: str, thread_id: str = "default") -> dict:
 
     config = {"configurable": {"thread_id": thread_id}}
 
-    with timer() as agent_timer:
-        result = agent.invoke(
-            {"messages": [{"role": "user", "content": user_message}]},
-            config=config,
-        )
+    try:
+        with timer() as agent_timer:
+            result = agent.invoke(
+                {"messages": [{"role": "user", "content": user_message}]},
+                config=config,
+            )
+    except Exception as e:
+        error_msg = str(e)
+        from logger import log_tool_error
+        log_tool_error("agent", error_msg)
+        if "rate_limit" in error_msg.lower() or "429" in error_msg:
+            return {
+                "response": "I've hit the API rate limit. Please wait a minute and try again.",
+                "tool_calls": [],
+                "supervisor": {"passed": True, "verdict": "SKIP", "reason": "Rate limited"},
+            }
+        return {
+            "response": f"Sorry, something went wrong: {error_msg[:200]}",
+            "tool_calls": [],
+            "supervisor": {"passed": True, "verdict": "SKIP", "reason": "Error"},
+        }
 
     all_messages = result.get("messages", [])
     new_messages = _extract_new_messages(all_messages, user_message)

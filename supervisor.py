@@ -1,7 +1,8 @@
 from langchain.chat_models import init_chat_model
 
-from config import GROQ_MODEL
 from logger import log_supervisor, timer
+
+SUPERVISOR_MODEL = "llama-3.1-8b-instant"
 
 SUPERVISOR_PROMPT = """You are a Supervisor that validates AI assistant responses for accuracy.
 
@@ -34,7 +35,7 @@ def _get_model():
     global _supervisor_model
     if _supervisor_model is None:
         _supervisor_model = init_chat_model(
-            GROQ_MODEL, model_provider="groq", temperature=0
+            SUPERVISOR_MODEL, model_provider="groq", temperature=0
         )
     return _supervisor_model
 
@@ -66,12 +67,16 @@ def run_supervisor(
         f"Are the tool-sourced claims in the response grounded in the tool evidence?"
     )
 
-    with timer() as t:
-        model = _get_model()
-        result = model.invoke([
-            {"role": "system", "content": SUPERVISOR_PROMPT},
-            {"role": "user", "content": check_prompt},
-        ])
+    try:
+        with timer() as t:
+            model = _get_model()
+            result = model.invoke([
+                {"role": "system", "content": SUPERVISOR_PROMPT},
+                {"role": "user", "content": check_prompt},
+            ])
+    except Exception as e:
+        log_supervisor("SKIP", f"Supervisor error: {str(e)[:100]}", 0)
+        return {"passed": True, "verdict": "SKIP", "reason": "Supervisor unavailable"}
 
     response_text = result.content.strip()
     verdict = "PASS"

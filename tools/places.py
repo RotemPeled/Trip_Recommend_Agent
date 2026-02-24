@@ -35,14 +35,15 @@ def search_places(city: str, category: str) -> str:
         return str(e)
 
     headers = {
-        "Authorization": FOURSQUARE_API_KEY,
+        "Authorization": f"Bearer {FOURSQUARE_API_KEY}",
         "Accept": "application/json",
+        "X-Places-Api-Version": "2025-06-17",
     }
     params = {
         "query": category,
         "ll": f"{geo['latitude']},{geo['longitude']}",
         "radius": 30000,
-        "limit": 8,
+        "limit": 5,
         "sort": "RELEVANCE",
     }
 
