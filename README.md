@@ -1,6 +1,6 @@
 # Trip Planner AI
 
-An intelligent trip location planning agent built with LangChain, LangGraph, and Streamlit. The agent helps users discover travel destinations by reasoning about their preferences, checking real-time weather data, finding activities and attractions, and remembering preferences across sessions.
+An intelligent trip location planning agent built with LangChain, LangGraph, and Streamlit. The agent helps users discover travel destinations by reasoning about their preferences, checking climate data, finding activities and attractions, and remembering preferences across chat sessions.
 
 ## Architecture
 
@@ -41,11 +41,11 @@ graph TD
 ## Tech Stack
 
 - **Agent Framework**: LangChain `create_agent` + LangGraph
-- **LLM**: Groq (Llama 3.3 70B) — free tier
+- **LLM**: Groq (Llama 3.1 8B Instant) — free tier
 - **Weather Data**: Open-Meteo API — free, no API key
 - **Places Data**: Foursquare Places API — free tier
 - **UI**: Streamlit
-- **Memory**: InMemorySaver (chat history) + InMemoryStore (user preferences)
+- **Memory**: InMemorySaver (chat history) + InMemoryStore (user preferences, in-memory — resets on app restart)
 
 ## Setup
 
@@ -91,9 +91,9 @@ streamlit run app.py
 
 ### Bonus
 
-- **Long-Term Memory**: User preferences (travel style, interests, dietary needs) persist across chat sessions
+- **Long-Term Memory**: User preferences (travel style, interests, dietary needs) persist across chat sessions within a single app run
 - **Chat History**: Full conversation context maintained — follow-up questions work naturally
-- **Polished UI**: Streamlit app with onboarding flow, tool call traces, supervisor badges, and custom styling
+- **Polished UI**: Streamlit app with onboarding flow, chat interface, and custom styling
 
 ## Project Structure
 
@@ -110,7 +110,7 @@ Trip_Recommend_Agent/
 │   ├── weather.py         # Open-Meteo weather tool
 │   └── places.py          # Foursquare places tool
 └── ui/
-    ├── components.py      # Chat components, tool trace, badges
+    ├── components.py      # Reusable UI components
     └── styles.py          # Custom CSS
 ```
 
@@ -158,4 +158,4 @@ The app prints structured, color-coded logs to the terminal for debugging:
 3. **Provide details**: "January" — agent checks weather at ski destinations, finds activities via Foursquare
 4. **Follow up**: "What about nightlife in Innsbruck?" — uses chat history for context
 5. **Change mind**: "Actually somewhere warmer" — re-queries tools for warm destinations
-6. **New session**: Agent remembers your preferences from last time
+6. **New chat**: Agent remembers your preferences from earlier in the session
