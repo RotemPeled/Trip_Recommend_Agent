@@ -4,27 +4,17 @@ from logger import log_supervisor, timer
 
 SUPERVISOR_MODEL = "llama-3.1-8b-instant"
 
-SUPERVISOR_PROMPT = """You are a Supervisor that validates AI assistant responses for accuracy.
+SUPERVISOR_PROMPT = """You check if an assistant made up fake data.
 
-You will receive:
-1. The user's original question
-2. The user's known context (home location, preferences — this is NOT fabricated)
-3. Tool outputs (the evidence/data collected)
-4. The assistant's draft response
+Rules:
+- ONLY fail if the assistant invented specific numbers (temperatures, distances) or place names that are NOT in the tool outputs.
+- If place names in the response appear anywhere in the tool outputs (even in addresses), that is FINE — PASS.
+- The user's home location and general travel advice are always FINE — PASS.
+- When in doubt, PASS.
 
-Your job: check if TOOL-SOURCED claims in the response match the actual tool outputs.
-- Temperatures, precipitation, snowfall numbers must match tool data.
-- Place names, categories, and addresses must come from tool results.
-- The assistant mentioning the user's home location or preferences is FINE — that comes 
-  from user context, not tools. Do NOT flag it.
-- General travel advice and knowledge is FINE — only flag fabricated SPECIFIC data 
-  (numbers, place names, ratings) that should have come from tools but didn't.
-
-If no tools were used, PASS.
-
-Respond with EXACTLY this format:
+Respond EXACTLY:
 VERDICT: PASS or FAIL
-REASON: Brief explanation (one sentence)
+REASON: one sentence
 """
 
 

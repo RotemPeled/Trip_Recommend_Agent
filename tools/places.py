@@ -15,7 +15,7 @@ def search_places(city: str, category: str) -> str:
 
     Args:
         city: The city to search in (e.g., "Innsbruck", "Barcelona", "Tokyo")
-        category: What to search for. Examples:
+        category: A single category to search for. Only ONE category per call. Examples:
             - "ski resort" or "skiing"
             - "beach"
             - "restaurant" or "local food"
@@ -44,7 +44,7 @@ def search_places(city: str, category: str) -> str:
         "ll": f"{geo['latitude']},{geo['longitude']}",
         "radius": 30000,
         "limit": 5,
-        "sort": "RELEVANCE",
+        "sort": "POPULARITY",
     }
 
     try:

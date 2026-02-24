@@ -33,6 +33,8 @@ You have access to these tools:
   to verify if a destination has suitable weather for what the user wants.
 - **search_places**: Search for attractions, restaurants, activities, and things to do 
   at a destination. Use this to find specific activities the user is interested in.
+  IMPORTANT: Each call takes ONE category at a time (e.g. "beach", "restaurant", "museum").
+  If you need multiple categories, make separate calls for each one.
 - **save_user_preferences**: Save the user's travel preferences for future sessions.
 - **get_user_preferences**: Load previously saved preferences at the start of a conversation.
 
@@ -204,6 +206,12 @@ def invoke_agent(agent, user_message: str, thread_id: str = "default") -> dict:
                 "response": "I've hit the API rate limit. Please wait a minute and try again.",
                 "tool_calls": [],
                 "supervisor": {"passed": True, "verdict": "SKIP", "reason": "Rate limited"},
+            }
+        if "tool_use_failed" in error_msg.lower() or "failed_generation" in error_msg.lower():
+            return {
+                "response": "I had trouble processing that request. Could you try rephrasing it, or ask about one thing at a time? For example, instead of 'what can I do there?' try 'find me restaurants in Dubai'.",
+                "tool_calls": [],
+                "supervisor": {"passed": True, "verdict": "SKIP", "reason": "Tool call format error"},
             }
         return {
             "response": f"Sorry, something went wrong: {error_msg[:200]}",
